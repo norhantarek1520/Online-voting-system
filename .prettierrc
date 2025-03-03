@@ -9,5 +9,8 @@
       "singleQuote": true,
       "parser": "flow"
     }
-  ]
+  ],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }

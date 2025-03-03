@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//---------------------------------- Tables -------------------------------------------------------------------------------------------------------
+model NationalIDCards {
+  id              String         @id @default(uuid())
+  first_name      String 
+  last_name       String
+  national_id     String         @unique
+  address         String
+  gender          EGender
+  marital_status  EMaritalStatus
+  religion        String
+  occupation      String
+  date_of_birth   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user            User?          @relation("UserToNationalID")   // Relation to User (One-to-One)
+}
+
+model User {
+  id               String      @id @default(uuid())
+  first_name       String
+  last_name        String
+  user_name        String      @unique
+  email            String      @unique
+  password         String
+  age              Int?
+  date_of_birth    DateTime
+  role             EUserRoles  @default(VOTER)
+  status           EUserStatus @default(PENDING)
+  user_national_id  String            @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  national_id_card  NationalIDCards?  @relation("UserToNationalID", fields: [user_national_id], references: [national_id])
+  candidate_profile Candidate?        @relation("UserToCandidate")
+  votes             Vote[]            @relation("UserToVotes")
+}
+
+model Candidate {
+  id                String           @id @default(uuid())
+  full_name         String
+  bio               String
+  platform_link     String
+  status            ECandidateStatus
+  party_affiliation String?
+  photo_url         String?
+  platform          String?
+  experience        String?
+  education         String?
+  birthdate         DateTime?
+  contact_info      String?
+  is_approved       Boolean?         @default(false)
+  user_id           String           @unique
+  election_id       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user              User             @relation("UserToCandidate", fields: [user_id], references: [id])
+  election          Election         @relation("CandidateToElection", fields: [election_id], references: [id])
+  votes_received    Vote[]           @relation("CandidateToVotes")
+  election_history_winner  ElectionHistory? @relation("WinnerCandidateToElectionHistory")  
+}
+
+model Election {
+  id                           String         @id @default(uuid())
+  title                        String
+  description                  String?
+  voting_start_date            DateTime
+  voting_end_date              DateTime
+  status                       ElectionStatus
+  candidate_registration_start DateTime
+  candidate_registration_end   DateTime
+  resultsAnnouncedDate         DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  candidates                   Candidate[]   @relation("CandidateToElection")
+  candidate_requirements       CandidateRequirements? @relation("ElectionToCandidateRequirements")
+  votes                        Vote[]        @relation("ElectionToVotes")
+  election_history             ElectionHistory? @relation("ElectionToElectionHistory")
+}
+
+model CandidateRequirements {
+  requirement_id String   @id @default(uuid())
+  age            Int
+  education      String
+  created_at     DateTime
+  election_id    String  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  election       Election @relation("ElectionToCandidateRequirements", fields: [election_id], references: [id])
+}
+
+model Vote {
+  id           String @id @default(uuid())
+  election_id  String
+  voter_id     String
+  candidate_id String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  election     Election @relation("ElectionToVotes", fields: [election_id], references: [id])
+  voter        User     @relation("UserToVotes", fields: [voter_id], references: [id])
+  candidate    Candidate @relation("CandidateToVotes", fields: [candidate_id], references: [id])
+}
+
+model ElectionHistory {
+  id                 String   @id @default(uuid())
+  election_id        String @unique
+  winner_candidate_id String @unique
+  loser_candidates_id String[]
+  total_votes        Int
+  result_date        DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  election           Election   @relation("ElectionToElectionHistory", fields: [election_id], references: [id])
+  winner_candidate   Candidate @relation("WinnerCandidateToElectionHistory", fields: [winner_candidate_id], references: [id])
+
+}
+//------------------------------------- Enums -----------------------------------------------------------------------------------------------------
+enum EUserRoles {
+  SUPER_ADMIN
+  ADMIN
+  VOTER
+  CANDIDATE
+}
+
+enum EUserStatus {
+  ACTIVE
+  PENDING
+  DELETED
+  BLOCKED
+}
+
+enum EGender {
+  FEMALE
+  MALE
+}
+
+enum EMaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum ElectionStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ECandidateStatus {
+  ACTIVE
+  DISQUALIFIDE
+  WITHDRAWN
+}
