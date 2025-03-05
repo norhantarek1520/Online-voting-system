@@ -3,7 +3,5 @@ import { CandidateRequirementsService } from '../services/candidate-requirements
 
 @Controller('candidate')
 export class CandidateRequirementsController {
-  constructor(
-    private readonly candidateRequirementsService: CandidateRequirementsService,
-  ) {}
+  constructor(private readonly candidateRequirementsService: CandidateRequirementsService) {}
 }

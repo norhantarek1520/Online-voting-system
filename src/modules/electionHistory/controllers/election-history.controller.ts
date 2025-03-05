@@ -3,7 +3,5 @@ import { ElectionHistoryService } from '../services/election-history.service';
 
 @Controller()
 export class ElectionHistoryController {
-  constructor(
-    private readonly electionHistoryService: ElectionHistoryService,
-  ) {}
+  constructor(private readonly electionHistoryService: ElectionHistoryService) {}
 }
