@@ -1,20 +1,20 @@
 import { EMaritalStatus } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateNationalIDCardDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  address: string;
+  address?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  religion: string;
+  religion?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  occupation: string;
+  occupation?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(EMaritalStatus)
-  maritalStatus: EMaritalStatus;
+  maritalStatus?: EMaritalStatus;
 }

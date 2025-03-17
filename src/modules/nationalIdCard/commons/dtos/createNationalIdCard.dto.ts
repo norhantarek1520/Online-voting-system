@@ -1,6 +1,6 @@
 import { EGender, EMaritalStatus } from '@prisma/client';
-import { Type } from 'class-transformer';
-import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDate, IsEnum, IsNotEmpty, IsString, MinDate } from 'class-validator';
 
 export class CreateNationalIDCardDto {
   @IsString()
@@ -33,6 +33,11 @@ export class CreateNationalIDCardDto {
 
   @IsNotEmpty()
   @IsDate()
-  @Type(() => Date) // Ensures the date string is converted to a Date object.
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return new Date(value);
+    }
+    return value; // If it's already a Date, leave it as is
+  })
   dateOfBirth: Date;
 }

@@ -1,6 +1,7 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, Length, Min, Validate } from 'class-validator';
+import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsString, Length, min, Min, MinDate, Validate } from 'class-validator';
 
 import { PasswordMatchConstraint } from '../decorators/index';
+import { Transform } from 'class-transformer';
 
 export class SignUpDto {
   @IsString()
@@ -11,11 +12,28 @@ export class SignUpDto {
 
   @IsString()
   @IsNotEmpty()
-  userNationalId: string;
+  nationalId: string;
 
   @IsNumber()
   @Min(18)
-  age: Number;
+  age: number;
+
+  @IsDate()
+  @MinDate(
+    () => {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() - 18); // Set the date to 18 years ago
+      return date;
+    },
+    { message: 'You must be at least 18 years old.' },
+  )
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return new Date(value);
+    }
+    return value; // If it's already a Date, leave it as is
+  })
+  dateOfBirth: Date;
 
   @IsString()
   userName: string;

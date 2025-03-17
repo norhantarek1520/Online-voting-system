@@ -8,6 +8,7 @@ export class NationalIdCardService {
   constructor(private readonly prismaService: PrismaService) {}
 
   public async create(createDto: CreateNationalIDCardDto): Promise<NationalIDCards> {
+    console.log('typeof createDto.dateOfBirth', typeof createDto.dateOfBirth);
     const nationalId = this.generateNationalId(createDto.dateOfBirth);
 
     return this.prismaService.nationalIDCards.create({
